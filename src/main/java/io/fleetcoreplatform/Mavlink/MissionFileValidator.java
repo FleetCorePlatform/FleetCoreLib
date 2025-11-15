@@ -1,3 +1,3 @@
-package io.levysworks.Mavlink;
+package io.fleetcoreplatform.Mavlink;
 
 public class MissionFileValidator {}

@@ -1,4 +1,4 @@
-package io.levysworks.Generators;
+package io.fleetcoreplatform.Generators;
 
 import java.net.NetworkInterface;
 import java.net.SocketException;

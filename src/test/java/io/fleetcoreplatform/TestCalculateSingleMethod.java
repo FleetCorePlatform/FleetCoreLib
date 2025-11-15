@@ -1,3 +1,3 @@
-package io.levysworks;
+package io.fleetcoreplatform;
 
 public class TestCalculateSingleMethod {}

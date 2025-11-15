@@ -1,4 +1,4 @@
-package io.levysworks.Mavlink;
+package io.fleetcoreplatform.Mavlink;
 
 import com.google.gson.Gson;
 import java.io.ByteArrayInputStream;
