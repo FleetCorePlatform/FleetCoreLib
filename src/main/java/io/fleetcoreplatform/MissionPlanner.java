@@ -25,11 +25,13 @@ public class MissionPlanner {
     public static File buildMission(Geometry polygon, DroneIdentity[] droneIdentities, int altitude)
             throws IOException {
         try (MissionZipBuilder zipBuilder = new MissionZipBuilder(UUID.randomUUID().toString())) {
+            int recursionDepth = (int) Math.floor(Math.log(droneIdentities.length) / Math.log(2));
+
             Geometry[] partitions =
                     PolygonPartitioner.bisectPolygon(
                             polygon,
                             0,
-                            droneIdentities.length,
+                            recursionDepth,
                             0.01); // Min area needs testing, and adjustments
 
             assert partitions.length == droneIdentities.length;
