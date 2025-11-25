@@ -28,9 +28,8 @@ public class MowerSurveyAlgorithm {
                 Point p2 = polygon.getPoint((i + 1) % n);
 
                 if ((p1.y <= y && y <= p2.y) || (p2.y <= y && y <= p1.y)) {
-                    if (p1.y == p2.y) {
-                        intersections.add(p1.x);
-                        intersections.add(p2.x);
+                    if (Math.abs(p1.y - p2.y) < 1e-9) {
+                        continue;
                     } else {
                         double t = (y - p1.y) / (p2.y - p1.y);
                         double x = p1.x + t * (p2.x - p1.x);
@@ -44,9 +43,18 @@ public class MowerSurveyAlgorithm {
             }
 
             Collections.sort(intersections);
-            for (int j = 0; j < intersections.size(); j += 2) {
-                double startX = intersections.get(j);
-                double endX = intersections.get(j + 1);
+
+            List<Double> uniqueIntersections = new ArrayList<>();
+            uniqueIntersections.add(intersections.getFirst());
+            for (int k = 1; k < intersections.size(); k++) {
+                if (Math.abs(intersections.get(k) - uniqueIntersections.getLast()) > 1e-9) {
+                    uniqueIntersections.add(intersections.get(k));
+                }
+            }
+
+            for (int j = 0; j < uniqueIntersections.size() - 1; j += 2) {
+                double startX = uniqueIntersections.get(j);
+                double endX = uniqueIntersections.get(j + 1);
 
                 List<Point> segmentPoints = new ArrayList<>();
                 segmentPoints.add(new Point(startX, y));
