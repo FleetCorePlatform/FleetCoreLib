@@ -55,6 +55,17 @@ public class PolygonPartitioner {
         return new SplitPolygon(leftPolygon, rightPolygon);
     }
 
+    /**
+     * Recursively bisects a polygon into smaller sub-polygons using binary space partitioning.
+     * Splits along the longest axis (width or height) at each iteration until maxDepth is reached
+     * or minimum area constraint is violated.
+     *
+     * @param polygon The polygon to perform the bisection on
+     * @param depth Current recursion depth (start with 0)
+     * @param maxDepth Maximum recursion depth - produces 2^maxDepth sub-polygons
+     * @param minArea Minimum area threshold - partitions smaller than this are not split further
+     * @return Array of sub-polygons resulting from the bisection process
+     */
     public static Geometry[] bisectPolygon(
             Geometry polygon, int depth, int maxDepth, double minArea) {
         double area = PolygonUtils.calculatePolygonArea(polygon);

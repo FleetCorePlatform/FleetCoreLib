@@ -1,10 +1,11 @@
 package io.fleetcoreplatform.Builders;
 
 import io.fleetcoreplatform.Models.MissionFile;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MissionPlanBuilder {
-    private List<MissionFile.Item> missionItems;
+    private final List<MissionFile.Item> missionItems;
     private int doJumpId = 1;
     private int hoverSpeed;
     private int cruiseSpeed;
@@ -13,6 +14,7 @@ public class MissionPlanBuilder {
     private MissionPlanBuilder(int hoverSpeed, int cruiseSpeed) {
         this.hoverSpeed = hoverSpeed;
         this.cruiseSpeed = cruiseSpeed;
+        this.missionItems = new ArrayList<>();
     }
 
     public static MissionPlanBuilder builder() {

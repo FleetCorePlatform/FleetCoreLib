@@ -16,7 +16,8 @@ import org.postgis.Point;
 public class MissionPlanner {
     /**
      * @param polygon The polygon to calculate the mission on
-     * @param droneIdentities An array of DroneIdentities containing the drone name, and it's home position
+     * @param droneIdentities An array of DroneIdentities containing the drone name, and it's home
+     *     position
      * @param altitude The altitude to run the mission at
      * @return A zip bundle containing the plans for each drone specified in <b>droneIdentities</b>
      * @throws IOException If there was an exception while building the zip file
