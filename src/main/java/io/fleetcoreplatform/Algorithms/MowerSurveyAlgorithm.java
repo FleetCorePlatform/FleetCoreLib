@@ -9,7 +9,7 @@ import org.postgis.Geometry;
 import org.postgis.Point;
 
 public class MowerSurveyAlgorithm {
-    protected static Point[] calculatePath(Geometry polygon, double spacing, boolean zigZag) {
+    public static Point[] calculatePath(Geometry polygon, double spacing, boolean zigZag) {
         PolygonBoundingBox boundingBox = PolygonUtils.getBoundingBox(polygon);
 
         List<Double> sweepLinesY = new ArrayList<>();

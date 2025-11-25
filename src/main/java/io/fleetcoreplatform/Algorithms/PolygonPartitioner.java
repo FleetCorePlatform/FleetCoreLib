@@ -55,7 +55,7 @@ public class PolygonPartitioner {
         return new SplitPolygon(leftPolygon, rightPolygon);
     }
 
-    protected static Geometry[] bisectPolygon(
+    public static Geometry[] bisectPolygon(
             Geometry polygon, int depth, int maxDepth, double minArea) {
         double area = PolygonUtils.calculatePolygonArea(polygon);
 
