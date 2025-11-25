@@ -1,102 +1,74 @@
 package io.fleetcoreplatform;
 
+import io.fleetcoreplatform.Algorithms.MowerSurveyAlgorithm;
+import io.fleetcoreplatform.Algorithms.PolygonPartitioner;
+import io.fleetcoreplatform.Builders.MissionPlanBuilder;
 import io.fleetcoreplatform.Builders.MissionZipBuilder;
+import io.fleetcoreplatform.Models.DroneIdentity;
 import io.fleetcoreplatform.Models.MissionFile;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.UUID;
 import org.postgis.Geometry;
+import org.postgis.Point;
 
 public class MissionPlanner {
-    // TODO: Integrate the modules to complete the mission building process
-    public static File buildMission(Geometry polygon) throws IOException {
+    /**
+     * @param polygon The polygon to calculate the mission on
+     * @param droneIdentities An array of DroneIdentities containing the drone name, and it's home position
+     * @param altitude The altitude to run the mission at
+     * @return A zip bundle containing the plans for each drone specified in <b>droneIdentities</b>
+     * @throws IOException If there was an exception while building the zip file
+     */
+    public static File buildMission(Geometry polygon, DroneIdentity[] droneIdentities, int altitude)
+            throws IOException {
+        try (MissionZipBuilder zipBuilder = new MissionZipBuilder(UUID.randomUUID().toString())) {
+            Geometry[] partitions =
+                    PolygonPartitioner.bisectPolygon(
+                            polygon,
+                            0,
+                            droneIdentities.length,
+                            0.01); // Min area needs testing, and adjustments
 
-        MissionFile missionFile =
-                new MissionFile(
-                        new MissionFile.GeoFence(new Object[0], new Object[0]),
-                        new MissionFile.Mission(
-                                15,
-                                5,
-                                new MissionFile.Item[] {
-                                    new MissionFile.Item(
-                                            null,
-                                            0,
-                                            0,
-                                            true,
-                                            530,
-                                            1,
-                                            2,
-                                            new Double[] {0.0, 2.0, null, null, null, null, null}),
-                                    new MissionFile.Item(
-                                            null,
-                                            6,
-                                            1,
-                                            true,
-                                            22,
-                                            2,
-                                            3,
-                                            new Double[] {
-                                                0.0, 0.0, 0.0, null, 47.3977527, 8.5456078, 6.108192
-                                            }),
-                                    new MissionFile.Item(
-                                            null,
-                                            6,
-                                            1,
-                                            true,
-                                            16,
-                                            3,
-                                            3,
-                                            new Double[] {
-                                                0.0,
-                                                0.0,
-                                                0.0,
-                                                null,
-                                                47.39777142,
-                                                8.54566905,
-                                                6.108192
-                                            }),
-                                    new MissionFile.Item(
-                                            null,
-                                            6,
-                                            1,
-                                            true,
-                                            16,
-                                            4,
-                                            3,
-                                            new Double[] {
-                                                0.0,
-                                                0.0,
-                                                0.0,
-                                                null,
-                                                47.39779004,
-                                                8.54558785,
-                                                6.108192
-                                            }),
-                                    new MissionFile.Item(
-                                            null,
-                                            0,
-                                            0,
-                                            true,
-                                            20,
-                                            5,
-                                            2,
-                                            new Double[] {
-                                                0.0, 0.0, 0.0, 0.0, 47.3977527, 8.5456078, 0.0
-                                            })
-                                },
-                                new double[] {47.3977527, 8.5456078, 491}),
-                        "QGroundControl",
-                        new MissionFile.RallyPoints(new Object[0]));
+            assert partitions.length == droneIdentities.length;
 
-        try (MissionZipBuilder builder = new MissionZipBuilder(UUID.randomUUID().toString())) {
-            try (InputStream stream1 = missionFile.toStream()) {
-                builder.mission("test1", stream1);
+            for (int i = 0; i < droneIdentities.length; i++) {
+                DroneIdentity.Home homePos = droneIdentities[i].home();
+
+                MissionPlanBuilder planBuilder =
+                        MissionPlanBuilder.builder()
+                                .cruiseSpeed(15)
+                                .hoverSpeed(5)
+                                .homePosition(homePos.x(), homePos.y(), homePos.z());
+
+                Point[] points = MowerSurveyAlgorithm.calculatePath(partitions[i], 1.5, true);
+
+                planBuilder.item(
+                        0, 0, 530, 2, null, null,
+                        null); // MAV_CMD_SET_CAMERA_MODE - Set camera running mode
+
+                for (int j = 0; j < points.length; j++) {
+                    double x = points[j].x;
+                    double y = points[j].y;
+                    double z = points[j].z;
+
+                    if (j == 0) {
+                        planBuilder.item(altitude, 1, 22, 3, x, y, z);
+                    } else if (j == points.length - 1) {
+                        planBuilder.item(0, 0, 20, 2, x, y, z);
+                    } else {
+                        planBuilder.item(altitude, 1, 16, 3, x, y, z);
+                    }
+                }
+
+                MissionFile plan = planBuilder.build();
+                try (InputStream stream = plan.toStream()) {
+                    zipBuilder.mission(droneIdentities[i].name(), stream);
+                }
             }
-            try (InputStream stream2 = missionFile.toStream()) {
-                builder.mission("test2", stream2);
-            }
-            return builder.build();
+
+            return zipBuilder.build();
         }
     }
 }
