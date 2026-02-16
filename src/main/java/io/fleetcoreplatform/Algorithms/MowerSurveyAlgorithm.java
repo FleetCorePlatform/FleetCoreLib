@@ -1,7 +1,7 @@
 package io.fleetcoreplatform.Algorithms;
 
+import io.fleetcoreplatform.Health.PolygonUtils;
 import io.fleetcoreplatform.Models.PolygonBoundingBox;
-import io.fleetcoreplatform.Utils.PolygonUtils;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -53,6 +53,10 @@ public class MowerSurveyAlgorithm {
             }
 
             for (int j = 0; j < uniqueIntersections.size() - 1; j += 2) {
+                if (j + 1 >= uniqueIntersections.size()) {
+                    break;
+                }
+
                 double startX = uniqueIntersections.get(j);
                 double endX = uniqueIntersections.get(j + 1);
 
