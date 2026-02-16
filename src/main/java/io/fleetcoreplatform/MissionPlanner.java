@@ -34,8 +34,6 @@ public class MissionPlanner {
                             recursionDepth,
                             0.01); // Min area needs testing, and adjustments
 
-            assert partitions.length == droneIdentities.length;
-
             for (int i = 0; i < droneIdentities.length; i++) {
                 DroneIdentity.Home homePos = droneIdentities[i].home();
 
@@ -45,7 +43,9 @@ public class MissionPlanner {
                                 .hoverSpeed(5)
                                 .homePosition(homePos.x(), homePos.y(), homePos.z());
 
-                Point[] points = MowerSurveyAlgorithm.calculatePath(partitions[i], 1.5, true);
+                Geometry assignedPartition = partitions[i % partitions.length];
+
+                Point[] points = MowerSurveyAlgorithm.calculatePath(assignedPartition, 1.5, true);
 
                 planBuilder.item(
                         0, 0, 530, 2, null, null,
