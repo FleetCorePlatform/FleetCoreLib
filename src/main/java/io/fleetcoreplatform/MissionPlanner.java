@@ -13,14 +13,24 @@ import java.util.UUID;
 import org.postgis.Geometry;
 import org.postgis.Point;
 
+/**
+ * Top-level orchestrator for mapping and translating an overarching area survey into discrete drone
+ * assignments.
+ */
 public class MissionPlanner {
+
     /**
-     * @param polygon The polygon to calculate the mission on
-     * @param droneIdentities An array of DroneIdentities containing the drone name, and it's home
-     *     position
-     * @param altitude The altitude to run the mission at
-     * @return A zip bundle containing the plans for each drone specified in <b>droneIdentities</b>
-     * @throws IOException If there was an exception while building the zip file
+     * Slices an input geographical area into distinct sub-regions, generates a sweeping path for
+     * each section, and bundles the individual drone plans into a consolidated archive payload. The
+     * method calculates required recursion depths to satisfy the number of active drones provided.
+     *
+     * @param polygon The global boundary polygon outlining the entire survey operation.
+     * @param droneIdentities The hardware fleet list providing callsigns and initial launch
+     *     coordinates.
+     * @param altitude The strict cruising altitude applied to all generated flight trajectories.
+     * @return A zipped package containing localized `.plan` files assigned to specific hardware
+     *     UUIDs.
+     * @throws IOException If the underlying filesystem fails to generate or write the bundled zip.
      */
     public static File buildMission(Geometry polygon, DroneIdentity[] droneIdentities, int altitude)
             throws IOException {

@@ -11,7 +11,24 @@ import org.postgis.LinearRing;
 import org.postgis.Point;
 import org.postgis.Polygon;
 
+/**
+ * Handles the subdivision of geographical areas into smaller, manageable chunks for drone swarms.
+ * Uses a binary space partitioning (BSP) strategy to recursively divide a polygon into equal
+ * halves.
+ */
 public class PolygonPartitioner {
+
+    /**
+     * Divides a given polygon into two distinct polygons along a specified axis. Uses the
+     * Sutherland-Hodgman approach to calculate intersection points when the split line cuts across
+     * an edge.
+     *
+     * @param polygon The geometry representing the area to split.
+     * @param axis The axis to split across ('x' for longitude/horizontal, 'y' for
+     *     latitude/vertical).
+     * @param splitValue The coordinate value on the specified axis where the split line is drawn.
+     * @return A {@link SplitPolygon} record containing the two newly formed sub-polygons.
+     */
     private static SplitPolygon clipPolygon(Geometry polygon, char axis, double splitValue) {
         int n = polygon.numPoints();
 
@@ -56,15 +73,17 @@ public class PolygonPartitioner {
     }
 
     /**
-     * Recursively bisects a polygon into smaller sub-polygons using binary space partitioning.
-     * Splits along the longest axis (width or height) at each iteration until maxDepth is reached
-     * or minimum area constraint is violated.
+     * Recursively partitions a polygon into multiple sub-polygons up to a specified depth. At each
+     * step, it determines the bounding box's longest axis and bisects the polygon across its
+     * center. Recursion stops early if a sub-polygon's area falls below the minimum threshold or if
+     * it cannot form a valid shape.
      *
-     * @param polygon The polygon to perform the bisection on
-     * @param depth Current recursion depth (start with 0)
-     * @param maxDepth Maximum recursion depth - produces 2^maxDepth sub-polygons
-     * @param minArea Minimum area threshold - partitions smaller than this are not split further
-     * @return Array of sub-polygons resulting from the bisection process
+     * @param polygon The area geometry to partition.
+     * @param depth The current zero-indexed recursion depth.
+     * @param maxDepth The recursion limit. A value of N yields up to 2^N sub-polygons.
+     * @param minArea The strict minimum area threshold. Regions below this size are kept intact
+     *     without further splitting.
+     * @return An array of the resulting partitioned geometries.
      */
     public static Geometry[] bisectPolygon(
             Geometry polygon, int depth, int maxDepth, double minArea) {

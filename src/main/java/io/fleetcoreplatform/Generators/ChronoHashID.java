@@ -8,6 +8,10 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Base64;
 
+/**
+ * Generates highly collision-resistant, temporally-sorted unique identifiers. The output relies on
+ * a combination of hardware MAC addresses, secure random nonces, and timestamping.
+ */
 public class ChronoHashID {
     private static String getMacSegment() throws SocketException {
         NetworkInterface ni = NetworkInterface.getNetworkInterfaces().nextElement();
@@ -44,6 +48,15 @@ public class ChronoHashID {
         return sb.toString();
     }
 
+    /**
+     * Synthesizes a chronologically sortable hash ID string. The prefix contains the current epoch
+     * time, while the suffix is a SHA-256 hash of the local hardware MAC combined with a
+     * 15-character secure random sequence.
+     *
+     * @return The generated unique identifier.
+     * @throws SocketException If hardware network interfaces cannot be accessed.
+     * @throws NoSuchAlgorithmException If the runtime environment lacks SHA-256 support.
+     */
     public static String generateCHID() throws SocketException, NoSuchAlgorithmException {
         String timeMillis = String.valueOf(System.currentTimeMillis());
         String macSegment = getMacSegment();

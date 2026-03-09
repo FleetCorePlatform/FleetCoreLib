@@ -8,7 +8,24 @@ import java.util.List;
 import org.postgis.Geometry;
 import org.postgis.Point;
 
+/**
+ * Implements a sweep-line algorithm to generate boustrophedon (lawnmower) flight paths. These paths
+ * are standard for comprehensive aerial surveying and mapping missions.
+ */
 public class MowerSurveyAlgorithm {
+
+    /**
+     * Calculates a zig-zag route over a specified polygon area. The algorithm runs horizontal sweep
+     * lines from the bottom to the top of the polygon's bounding box, computing the intersection
+     * segments and linking them together.
+     *
+     * @param polygon The surveyed region geometry.
+     * @param spacing The vertical distance between parallel sweep lines (corresponds to the
+     *     camera's ground footprint).
+     * @param zigZag Defines the initial entry direction. If true, the first line goes
+     *     right-to-left.
+     * @return An ordered array of geographical points defining the continuous flight trajectory.
+     */
     public static Point[] calculatePath(Geometry polygon, double spacing, boolean zigZag) {
         PolygonBoundingBox boundingBox = PolygonUtils.getBoundingBox(polygon);
 
