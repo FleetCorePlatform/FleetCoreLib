@@ -84,4 +84,37 @@ public class MissionPlanner {
             return zipBuilder.build();
         }
     }
+
+    public static File buildManualMission(Point[] waypoints, DroneIdentity drone, int altitude, int speed) throws IOException {
+    try (MissionZipBuilder zipBuilder = new MissionZipBuilder(UUID.randomUUID().toString())) {
+        DroneIdentity.Home homePos = drone.home();
+        MissionPlanBuilder planBuilder = MissionPlanBuilder.builder()
+                .cruiseSpeed(speed)
+                .hoverSpeed(5)
+                .homePosition(homePos.x(), homePos.y(), homePos.z());
+
+        planBuilder.item(0, 0, 530, 2, null, null, null);
+
+        for (int i = 0; i < waypoints.length; i++) {
+            double x = waypoints[i].x;
+            double y = waypoints[i].y;
+            double z = waypoints[i].z;
+
+            if (i == 0) {
+                planBuilder.item(altitude, 1, 22, 3, x, y, z);
+            } else if (i == waypoints.length - 1) {
+                planBuilder.item(0, 0, 20, 2, x, y, z);
+            } else {
+                planBuilder.item(altitude, 1, 16, 3, x, y, z);
+            }
+        }
+
+        MissionFile plan = planBuilder.build();
+        try (InputStream stream = plan.toStream()) {
+            zipBuilder.mission(drone.name(), stream);
+        }
+
+        return zipBuilder.build();
+    }
+}
 }
