@@ -10,6 +10,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.UUID;
+
+import io.fleetcoreplatform.Models.PolygonPoint2D;
 import org.postgis.Geometry;
 import org.postgis.Point;
 
@@ -85,7 +87,7 @@ public class MissionPlanner {
         }
     }
 
-    public static File buildManualMission(Point[] waypoints, DroneIdentity drone, int altitude, int speed) throws IOException {
+    public static File buildManualMission(PolygonPoint2D[] waypoints, DroneIdentity drone, int altitude, int speed, boolean rtl) throws IOException {
     try (MissionZipBuilder zipBuilder = new MissionZipBuilder(UUID.randomUUID().toString())) {
         DroneIdentity.Home homePos = drone.home();
         MissionPlanBuilder planBuilder = MissionPlanBuilder.builder()
@@ -96,16 +98,19 @@ public class MissionPlanner {
         planBuilder.item(0, 0, 530, 2, null, null, null);
 
         for (int i = 0; i < waypoints.length; i++) {
-            double x = waypoints[i].x;
-            double y = waypoints[i].y;
-            double z = waypoints[i].z;
+            double x = waypoints[i].x();
+            double y = waypoints[i].y();
 
             if (i == 0) {
-                planBuilder.item(altitude, 1, 22, 3, x, y, z);
+                planBuilder.item(altitude, 1, 22, 3, x, y, (double) altitude);
             } else if (i == waypoints.length - 1) {
-                planBuilder.item(0, 0, 20, 2, x, y, z);
+                if (rtl) {
+                    planBuilder.item(0, 0, 20, 2, x, y, (double) altitude);
+                } else {
+                    planBuilder.item(0, 0, 21, 2, x, y, (double) altitude);
+                }
             } else {
-                planBuilder.item(altitude, 1, 16, 3, x, y, z);
+                planBuilder.item(altitude, 1, 16, 3, x, y, (double) altitude);
             }
         }
 
