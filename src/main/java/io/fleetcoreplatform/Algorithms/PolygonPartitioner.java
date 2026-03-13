@@ -1,6 +1,6 @@
 package io.fleetcoreplatform.Algorithms;
 
-import io.fleetcoreplatform.Health.PolygonUtils;
+import io.fleetcoreplatform.Utils.PolygonUtils;
 import io.fleetcoreplatform.Models.PolygonBoundingBox;
 import io.fleetcoreplatform.Models.SplitPolygon;
 import java.util.ArrayList;

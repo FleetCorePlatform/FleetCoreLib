@@ -1,4 +1,4 @@
-package io.fleetcoreplatform.Health;
+package io.fleetcoreplatform.Utils;
 
 import io.fleetcoreplatform.Models.PolygonBoundingBox;
 import io.fleetcoreplatform.Models.XYArrays;
